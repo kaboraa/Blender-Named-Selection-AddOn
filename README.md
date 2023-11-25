@@ -5,7 +5,7 @@ The Blender Named Selection Add-on is a Python script designed to enhance the fu
 
 ## Installation
 To install the Named Selection Add-on in Blender, follow these steps:
-1. Download the `NamedSelectionAddon.py` file from this repository.
+1. Download the `NamedSelection.py` file from this repository.
 2. Open Blender and go to `Edit > Preferences > Add-ons`.
 3. Click `Install` and navigate to the downloaded `.py` file.
 4. Select the file and click `Install Add-on`.
