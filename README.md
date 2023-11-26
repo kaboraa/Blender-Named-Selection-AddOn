@@ -18,7 +18,7 @@ To install the Named Selection Add-on in Blender, follow these steps:
 Once installed, the add-on can be accessed in the 3D Viewport under the sidebar (press `N` to toggle). 
 
 ### Interface
-![User interface](docimages/example.png "This is an example image")
+![User interface](docimages/userinterface.jpg "Addon user interface")
 
 In the Named Selection interface, all added named selections are displayed.
 
