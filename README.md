@@ -29,13 +29,16 @@ The buttons below the named selection list let's you create and remove named sel
 2. Go to the Named Selections tab in the sidebar.
 3. Click `Add` and enter a name for the selection.
 
+### Removing a Named Selection
+1. Select the named object from the named selection listed
+2. Click the `Remove` to remove the named selection 
+
 ### Managing Named Selections
 - **View List**: All named selections are listed in the Named Selections tab.
-- **Select Objects**: Click `Select` to select all objects in a named selection.
-- **Add/Remove Objects**: Select objects and use `Add Objects` or `Remove Object` to modify a named selection.
+- **Select Objects**: Click `Select Objects` to select all objects in a named selection.
+- **Add/Remove Objects**: Select objects in viewport and use `Add Objects` or `Remove Objects` to modify a named selection.
+- **Remove All Objects**: Use `Remove All Objects` to empty a named selection without deleting it.
 - **Rename**: Click `Rename` to change a named selection's name.
-- **Clear**: Use `Clear Named Selection` to empty a selection without deleting it.
-- **Remove**: Delete a named selection with the `Remove` button.
 
 ## Features
 - Create and manage named selections of objects.

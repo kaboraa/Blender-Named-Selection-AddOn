@@ -236,49 +236,36 @@ class NamedSelectionsPanel(Panel):
         # Check if the current mode is Object Mode
         is_object_mode = context.mode == 'OBJECT'
 
-
-        # Draw the listbox for showing the named selections
-        layout.template_list("UI_UL_list", "named_selections", scene, "named_selections", scene, "named_selections_index")
-
-      
         row = layout.row(align=True)
 
         # Add column
         add_col = row.column(align=True)
         add_col.operator("object.add_named_selection", text="Add", icon='ADD')    
        
-
         # Remove column
         remove_col = row.column(align=True)
         remove_col.enabled = len(scene.named_selections) > 0
         remove_col.operator("object.remove_named_selection", text="Remove", icon='REMOVE')
-  
+
+        # Draw the listbox for showing the named selections
+        layout.template_list("UI_UL_list", "named_selections", scene, "named_selections", scene, "named_selections_index")
 
         # Separate row for Select button with conditional enabling
         select_row = layout.row(align=True)
         select_row.scale_y = 1.5  # Increase the height of the button
         select_row.enabled = len(scene.named_selections) > 0 and is_object_mode
-        #select_row.operator("object.select_named_selection", text="Select", icon='RESTRICT_SELECT_OFF')
-        select_row.operator("object.select_named_selection", text="Select Objects in Named", icon='OBJECT_DATAMODE')
-        
-        
-        # Row for the Clear Named Selection button with conditional enabling
-        clear_row = layout.row(align=True)
-        clear_row.enabled = len(scene.named_selections) > 0 #and len(scene.named_selections[scene.named_selections_index].objects) > 0)
-        clear_row.operator("object.clear_named_selection", text="Clear Named Selection", icon='X')
-        
-        # Row for the Add Objects and Remove objects button
-        object_row = layout.row(align=True)
-     
+        select_row.operator("object.select_named_selection", text="Select Objects", icon='OBJECT_DATAMODE')        
+      
+ 
         # Column for adding an object from a named selection with conditional enabling
-        add_object_col = object_row.column(align=True)
+        add_object_row = layout.row(align=True)
         active_object = context.active_object
         # Check if there is an active object and if it is selected
-        add_object_col.enabled = len(scene.named_selections) > 0 and active_object and active_object.select_get()
-        add_object_col.operator("object.add_object_to_named_selection", text="Add Objects", icon='ADD')
+        add_object_row.enabled = len(scene.named_selections) > 0 and active_object and active_object.select_get()
+        add_object_row.operator("object.add_object_to_named_selection", text="Add Objects", icon='ADD')
 
         # Column for removing an object from a named selection with conditional enabling
-        remove_object_col = object_row.column(align=True)
+        remove_object_row = layout.row(align=True)
         named_selection_index = scene.named_selections_index
         active_object = context.active_object       
 
@@ -286,16 +273,23 @@ class NamedSelectionsPanel(Panel):
         if (named_selection_index < len(scene.named_selections) and
             active_object and active_object.select_get()):
             named_selection = scene.named_selections[named_selection_index]
-            remove_object_col.enabled = active_object.name in [obj.name for obj in named_selection.objects]
+            remove_object_row.enabled = active_object.name in [obj.name for obj in named_selection.objects]
         else:
-            remove_object_col.enabled = False
+            remove_object_row.enabled = False
 
-        remove_object_col.operator("object.remove_object_from_named_selection", text="Remove Object", icon='CANCEL')
+        remove_object_row.operator("object.remove_object_from_named_selection", text="Remove Objects", icon='CANCEL')
+        
+        # Row for the Clear Named Selection button with conditional enabling
+        clear_row = layout.row(align=True)
+        clear_row.enabled = len(scene.named_selections) > 0 #and len(scene.named_selections[scene.named_selections_index].objects) > 0)
+        clear_row.operator("object.clear_named_selection", text="Remove All Objects", icon='X')
          
          # Row for Rename button with conditional enabling
         rename_row = layout.row(align=True)
         rename_row.enabled = len(scene.named_selections) > 0
         rename_row.operator("object.rename_named_selection", text="Rename", icon='TOOL_SETTINGS')
+        
+
 
 # A handler function that updates the named selections when an object is deleted
 def update_named_selections(scene):
