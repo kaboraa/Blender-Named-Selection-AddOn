@@ -1,7 +1,10 @@
 # Blender Named Selection Add-on
 
 ## Introduction
-The Blender Named Selection Add-on is a Python script designed to enhance the functionality of Blender by facilitating the creation and management of named selections of objects within a scene. This add-on allows users to group objects under unique names, simplifying the process of accessing and manipulating these collections in their 3D workflow.
+The Blender Named Selection Add-on allows you to create a named selection for one or more selected objects directly from the viewport.  
+
+## Key Benefit
+Objects in a named selection can be quickly selected with a single button click.
 
 ## Installation
 To install the Named Selection Add-on in Blender, follow these steps:
@@ -13,6 +16,13 @@ To install the Named Selection Add-on in Blender, follow these steps:
 
 ## Usage
 Once installed, the add-on can be accessed in the 3D Viewport under the sidebar (press `N` to toggle). 
+
+### Interface
+![User interface](imagedocumentation/example.png "This is an example image")
+
+In the Named Selection interface, all added named selections are displayed.
+
+The buttons below the named selection list let's you create and remove named selections, select objects in a named selection, add or remove objects from it, remove all objects in a named selection, add or remove objects from a named selection and rename the named selection.
 
 ### Creating a Named Selection
 1. Select the objects you want to group in the 3D Viewport.
