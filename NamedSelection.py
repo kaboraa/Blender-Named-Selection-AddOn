@@ -2,7 +2,7 @@ bl_info = {
     "name": "Named Selections",
     "description": "Create and manage named selections of objects in the Blender scene.",
     "author": "Kwaku Oteng Aboraa",
-    "version": (1, 0, 0),
+    "version": (1, 0, 1),
     "blender": (2, 93, 0),
     "location": "View3D > Sidebar > Named Selections Panel",
     "warning": "",  # used for warning icon and text in addons panel
@@ -13,7 +13,7 @@ bl_info = {
 # Constants
 GITHUB_USER = "kaboraa"
 GITHUB_REPO = "Blender-Named-Selection-AddOn"
-CURRENT_VERSION = "v1.0.0"  # Update this as needed
+CURRENT_VERSION = "v1.0.1"  # Update this as needed
 
 import os
 import addon_utils
