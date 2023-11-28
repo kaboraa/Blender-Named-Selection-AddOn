@@ -19,24 +19,36 @@ Once installed, the add-on can be accessed in the 3D Viewport under the sidebar 
 
 ### Interface
 ![User interface](docImages/userinterface.jpg "Addon user interface")
-
-In the Named Selection interface, all added named selections are displayed.
-
-The buttons below the named selection list let's you create and remove named selections, select objects in a named selection, add or remove objects from it, remove all objects in a named selection, add or remove objects from a named selection and rename the named selection.
+1. **Show Info Panel**: Display options for checking for new updates, viewing online release notes and documentation.
+2. **Add and Remove Named Selections**: Buttons for adding a new named selection or removing an existing one.
+3. **Named Selection List**: A list that displays all the named selections.
+4. **Manage Named Selection**: The buttons below the named selection list lets you select objects in a named selection, add or remove objects from it, remove all objects in a named selection, add or remove objects from a named selection and rename the named selection.
 
 ### Creating a Named Selection
-1. Select the objects you want to group in the 3D Viewport.
+1. Select the objects you want to add to the new named selection in the 3D Viewport.
 2. Go to the Named Selections tab in the sidebar.
-3. Click `Add` and enter a name for the selection.
+3. Click `Add` button and enter a name for the selection.
 
 ### Removing a Named Selection
 1. Select the named object from the named selection listed
 2. Click the `Remove` to remove the named selection 
 
-### Managing Named Selections
-- **View List**: All named selections are listed in the Named Selections tab.
-- **Select Objects**: Click `Select Objects` to select all objects in a named selection.
-- **Add/Remove Objects**: Select objects in viewport and use `Add Objects` or `Remove Objects` to modify a named selection.
+### Selecting Objects in a Named Selection
+1. Select the desired named selection from the named selection list
+2. Click the Select Objects button located below the Named Selection.   list to select only objects in the Named Selection. 
+
+### Selecting Objects in a Named Selection
+1. From the named selection list, select the named selection that contains the objects you want to select.
+2. Click the `Select Objects` button located below the Named Selection list. This action  deselects any currently active objects in the viewport and selects only the objects in the named selection.
+     - Holding the **SHIFT** key while clicking `Select Objects` appends the objects in the named selection to any currently active selections in the viewport.
+
+### Adding or Removing Objects in a Named Selection
+1. Select the objects you want to add or remove in the Blender viewport
+2. Select the named selection you want to add the objects to or remove the objects from
+3. Click the `Add Objects` or `Remove Objects` button located below the Named Selection list to include or remove the selected objects in the named selection.
+
+### Other Named Selection Features 
+
 - **Remove All Objects**: Use `Remove All Objects` to empty a named selection without deleting it.
 - **Rename**: Click `Rename` to change a named selection's name.
 
@@ -45,7 +57,7 @@ The buttons below the named selection list let's you create and remove named sel
 - Easily add, remove, and select objects within named selections.
 - View all named selections in a user-friendly list.
 - Automatically updates selections when objects are deleted.
-- Intuitive UI integrated seamlessly into Blender's interface.
+- Check for Updates: Stay informed about new versions of the add-on.
 
 ## Contributing
 Contributions to the Named Selection Add-on are welcome. To contribute:

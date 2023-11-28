@@ -10,18 +10,120 @@ bl_info = {
     "category": "Object"
 }
 
+# Constants
+GITHUB_USER = "kaboraa"
+GITHUB_REPO = "Blender-Named-Selection-AddOn"
+CURRENT_VERSION = "v1.0.0"  # Update this as needed
 
+import os
+import addon_utils
 import bpy
+import threading
+import requests
 from bpy.props import StringProperty, CollectionProperty
 from bpy.types import Operator, Panel, PropertyGroup
 
+bpy.types.Scene.show_named_selection_info = bpy.props.BoolProperty(
+    name="Show Info",
+    description="Show additional information about the Named Selection addon",
+    default=False
+)
+
+bpy.types.Scene.show_release_note = bpy.props.BoolProperty(
+    name="Show Release Notes",
+    description="Show release information",
+    default=True
+)
+
+
+# Define a simple property to store the update message
+def get_addon_prefs():
+    user_preferences = bpy.context.preferences
+    return user_preferences.addons[__name__].preferences
+
+def register_properties():
+    """Registers custom properties used by the addon.
+
+    This includes properties for update messages and showing release notes.
+    """
+    bpy.types.WindowManager.update_check_message = bpy.props.StringProperty(
+        name="Update Check Message",
+        default="Current version: " + CURRENT_VERSION
+    )
+
+
+def unregister_properties():
+    del bpy.types.WindowManager.update_check_message
+ 
+class CheckForUpdateOperator(bpy.types.Operator):
+    """Operator to check for updates to the addon from GitHub.
+
+    This operator checks the specified GitHub repository for the latest release version
+    and compares it with the current version of the addon.
+    """
+    bl_idname = "wm.check_for_update"
+    bl_label = "Check for Update"
+
+    def execute(self, context):
+        # Set the initial message
+        context.window_manager.update_check_message = "Checking for updates..."
+        # Run the version check in a new thread to avoid blocking the Blender UI
+        thread = threading.Thread(target=self.check_for_update, args=(context,))
+        thread.start()
+        return {'FINISHED'}
+
+    def check_for_update(self, context):
+        try:
+            latest_version = self.get_latest_release(GITHUB_USER, GITHUB_REPO)
+            current_version = CURRENT_VERSION
+            # Prepare the message
+            if latest_version is None:
+                message = "Could not check for updates. Please try again later."
+            elif latest_version == current_version:
+                message = "You are using the latest version."
+            else:
+                message = f"Update available! Latest version: {latest_version}"
+
+            # Update the message property
+            context.window_manager.update_check_message = message
+            
+        except Exception as e:
+            message = f"Failed to check for updates: {str(e)}"
+            context.window_manager.update_check_message = message
+
+    def get_latest_release(self, user, repo):
+        url = f"https://api.github.com/repos/{user}/{repo}/releases/latest"
+        response = requests.get(url)
+        if response.ok:
+            return response.json()['tag_name']
+        else:
+            return None  
+        
 # A custom property group that stores the name and objects of a named selection
 class NamedSelection(PropertyGroup):
+    """
+    Custom property group for storing details of a named selection.
+
+    This class represents a named selection, holding a name for the selection
+    and a collection of objects that are part of this selection. It is used
+    to manage groups of objects under a user-defined name within the Blender scene.
+
+    Attributes:
+        name (StringProperty): The name assigned to the named selection.
+        objects (CollectionProperty): A collection of objects included in the named selection.
+    """
+    
     name: StringProperty(name="Name", default="Unnamed") # The name of the named selection
     objects: CollectionProperty(type=bpy.types.PropertyGroup) # The objects in the named selection
 
 # A custom operator that adds a new named selection from the selected objects
 class AddNamedSelection(Operator):
+    """Operator to add a new named selection.
+
+    Creates a new named selection from the currently selected objects in the Blender scene.
+    Allows naming the selection for future reference.
+    """
+    
     bl_idname = "object.add_named_selection"
     bl_label = "Add Named Selection"
     bl_description = "Add a new named selection from the selected objects"
@@ -32,7 +134,7 @@ class AddNamedSelection(Operator):
     def execute(self, context):
         # Get the scene
         scene = context.scene
-
+        
         # Create a new named selection and add it to the scene's custom property
         named_selection = scene.named_selections.add()
         named_selection.name = self.name
@@ -55,34 +157,82 @@ class AddNamedSelection(Operator):
                 area.tag_redraw()
 
         return {'FINISHED'}
+    
+    def generate_unique_name(self, scene):
+        base_name = "Unnamed"
+        existing_names = {ns.name for ns in scene.named_selections}
+        
+        if base_name not in existing_names:
+            return base_name
 
+        # Increment the suffix until an unused name is found
+        counter = 1
+        while f"{base_name}.{str(counter).zfill(2)}" in existing_names:
+            counter += 1
+
+        return f"{base_name}.{str(counter).zfill(2)}"
 
     def invoke(self, context, event):
         # Show a dialog to enter the name of the new named selection
+        scene = context.scene
+        self.name = self.generate_unique_name(scene)
         return context.window_manager.invoke_props_dialog(self)
 
 # A custom operator that selects the objects in a named selection
 class SelectNamedSelection(Operator):
+    """Operator to select objects from a named selection.
+
+    Selects all objects that are part of a specific named selection in the scene.
+    Supports appending to the current selection.
+    """
+    
     bl_idname = "object.select_named_selection"
     bl_label = "Select Named Selection"
-    bl_description = "Select the objects in the named selection"
+    bl_description = "Select the objects in the named selection. Hold SHIFT to append to current selection."
     bl_options = {'REGISTER', 'UNDO'}
+    
+    append: bpy.props.BoolProperty()  # Add a property to store the append state
+    
+    @classmethod
+    def poll(cls, context):
+        return context.scene.named_selections
+
+    def invoke(self, context, event):
+        # The invoke function is called when the operator is called
+        # Here we set the append property based on the Shift key state
+        self.append = event.shift
+        return self.execute(context)
 
     def execute(self, context):
         # Get the scene and the active named selection
         scene = context.scene
         named_selection = scene.named_selections[scene.named_selections_index]
 
-        # Deselect all objects
-        bpy.ops.object.select_all(action='DESELECT')
+        # Check if we should append to the current selection
+        if not self.append:
+            # Deselect all objects if not appending
+            bpy.ops.object.select_all(action='DESELECT')
 
-        # Select the objects in the named selection
+
+       # Select the objects in the named selection
         for obj in named_selection.objects:
-            bpy.data.objects[obj.name].select_set(True)
+            object = bpy.data.objects.get(obj.name)
+            if object:
+                object.select_set(True)
+                
+       # Make sure the active object is set to one of the selected objects
+        if named_selection.objects and not self.append:
+            bpy.context.view_layer.objects.active = bpy.data.objects[named_selection.objects[0].name]
 
         return {'FINISHED'}
 # A custom operator that removes a named selection
 class RemoveNamedSelection(Operator):
+    """Operator to remove an existing named selection.
+
+    Removes a named selection from the scene. This action does not delete the objects,
+    only the grouping reference.
+    """
+    
     bl_idname = "object.remove_named_selection"
     bl_label = "Remove Named Selection"
     bl_description = "Remove the named selection"
@@ -117,6 +267,14 @@ class RemoveNamedSelection(Operator):
 
 # A custom operator that removes an object from a named selection
 class RemoveObjectFromNamedSelection(Operator):
+    """
+    Operator to remove the active object from a named selection.
+
+    This operator allows users to remove the currently active object from a specified named selection.
+    It modifies the named selection to exclude the active object, updating the collection of objects
+    within that selection. The operation is registered for undo/redo capabilities in Blender.
+
+    """
     bl_idname = "object.remove_object_from_named_selection"
     bl_label = "Remove Object From Named Selection"
     bl_description = "Remove the active object from the named selection"
@@ -223,6 +381,12 @@ class RenameNamedSelection(Operator):
 
 
 class NamedSelectionsPanel(Panel):
+    """UI Panel for managing named selections.
+
+    Provides a user interface in the Blender sidebar for managing named selections. 
+    Includes options to create, remove, and interact with named selections.
+    """
+    
     bl_idname = "OBJECT_PT_named_selections"
     bl_label = "Named Selections"
     bl_space_type = "VIEW_3D"
@@ -231,7 +395,34 @@ class NamedSelectionsPanel(Panel):
 
     def draw(self, context):
         layout = self.layout
+        wm = context.window_manager
         scene = context.scene
+        
+        # Collapsible info section
+        col = layout.column()
+        box = col.box()
+        row = box.row()
+
+        # This creates a clickable label that toggles the property
+        # When clicked, it will expand or collapse the box below it
+        row.prop(scene, "show_named_selection_info", icon="TRIA_DOWN" if scene.show_named_selection_info else "TRIA_RIGHT", emboss=False)
+         # Display the update status message
+  
+        if scene.show_named_selection_info:
+            # Expanded section with buttons
+            expand_col = box.column(align=True)
+            expand_col.label(text=wm.update_check_message)
+            expand_col.operator("wm.check_for_update")          
+      
+            # Button to show release notes
+            expand_col.operator("wm.url_open", text="Show Release Notes", icon='INFO').url = f"https://github.com/{GITHUB_USER}/{GITHUB_REPO}/releases/tag/{CURRENT_VERSION}"
+            # Documentation button
+            expand_col.operator("wm.url_open", text="Documentation", icon='INFO').url = f"https://github.com/{GITHUB_USER}/{GITHUB_REPO}"          
+            
+            # Tutorial button
+            tutorial_url = "https://www.youtube.com/"  # Replace with your actual tutorial link
+            if tutorial_url and tutorial_url != "https://www.youtube.com/":
+                expand_col.operator("wm.url_open", text="Tutorial", icon='FILE_MOVIE').url = tutorial_url
         
         # Check if the current mode is Object Mode
         is_object_mode = context.mode == 'OBJECT'
@@ -307,6 +498,8 @@ def update_named_selections(scene):
 
 # Register the custom property group, operators, panel and handler
 def register():
+    register_properties()
+    bpy.utils.register_class(CheckForUpdateOperator)
     bpy.utils.register_class(NamedSelection)
     bpy.utils.register_class(AddNamedSelection)
     bpy.utils.register_class(SelectNamedSelection)
@@ -322,6 +515,8 @@ def register():
 
 # Unregister the custom property group, operators, panel and handler
 def unregister():
+    unregister_properties()
+    bpy.utils.unregister_class(CheckForUpdateOperator)
     bpy.utils.unregister_class(NamedSelection)
     bpy.utils.unregister_class(AddNamedSelection)
     bpy.utils.unregister_class(SelectNamedSelection)
