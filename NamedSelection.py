@@ -283,16 +283,18 @@ class RemoveObjectFromNamedSelection(Operator):
     def execute(self, context):
         # Get the scene, the active object and the active named selection
         scene = context.scene
-        active_object = context.active_object
-        named_selection = scene.named_selections[bpy.types.UIList.active_index]
-
-        # Check if the active object is in the named selection
-        if active_object.name in [obj.name for obj in named_selection.objects]:
-            # Find the index of the object in the named selection's custom property
-            index = named_selection.objects.find(active_object.name)
-
-            # Remove the object from the named selection's custom property
-            named_selection.objects.remove(index)
+        named_selection_index = scene.named_selections_index
+        
+        
+        named_selection = scene.named_selections[named_selection_index]
+        
+         # Iterate over all selected objects and add them if they are not already in the named selection
+        for obj in context.selected_objects:
+            if obj.name in [o.name for o in named_selection.objects]:
+                 # Find the index of the object in the named selection's custom property
+                index = named_selection.objects.find(obj.name)
+                # Remove the object from the named selection's custom property
+                named_selection.objects.remove(index)      
 
         return {'FINISHED'}
 
