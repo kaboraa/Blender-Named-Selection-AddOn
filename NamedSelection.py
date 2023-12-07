@@ -422,9 +422,9 @@ class NamedSelectionsPanel(Panel):
             expand_col.operator("wm.url_open", text="Documentation", icon='INFO').url = f"https://github.com/{GITHUB_USER}/{GITHUB_REPO}"          
             
             # Tutorial button
-            tutorial_url = "https://www.youtube.com/"  # Replace with your actual tutorial link
+            tutorial_url = "https://www.youtube.com/playlist?list=PLYpjE5qfVfKA5ua5pzjk2Jx6gx_neU2OY"  # Replace with your actual tutorial link
             if tutorial_url and tutorial_url != "https://www.youtube.com/":
-                expand_col.operator("wm.url_open", text="Tutorial", icon='FILE_MOVIE').url = tutorial_url
+                expand_col.operator("wm.url_open", text="Tutorials", icon='FILE_MOVIE').url = tutorial_url
         
         # Check if the current mode is Object Mode
         is_object_mode = context.mode == 'OBJECT'
