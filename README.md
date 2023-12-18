@@ -14,8 +14,12 @@ To install the Named Selection Add-on in Blender, follow these steps:
 4. Select the file and click `Install Add-on`.
 5. Enable the add-on by ticking the checkbox next to its name.
 
+
+
 ## Video Tutorial
-For a detailed guide on how to use the Blender Named Selection Add-on, watch our [video tutorial on YouTube](https://www.youtube.com/watch?v=fnlghrXpp94).
+Click on the image below to watch the video tutorial on YouTube:
+
+[![Video Tutorial](docImages/BlenderAddOnThumbnail.jpg)](https://www.youtube.com/watch?v=fnlghrXpp94)
 
 ## Usage
 Once installed, the add-on can be accessed in the 3D Viewport under the sidebar (press `N` to toggle). 
